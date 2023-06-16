@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //스프링부트 업데이터 계속 되면서 이제 '@RunWith(SpringRunner.class)' 이것 안 적어줘도 알아서 다 작동시켜준다!
 @Transactional //여러 옵션 어노테이션들 중 반드시 'org.springframework.transaction.annotation.Transactional'을 선택
 @SpringBootTest
+@Rollback(false) //@Transactional 은 원래 실행 후 다 롤백시키는데, 테스트용에서는 이거를 입력해줌으로써 롤백 안시킴.
 class MemberJpaRepositoryTest {
 
 
@@ -59,7 +61,7 @@ class MemberJpaRepositoryTest {
         //< 테스트 3 >
         //- 'findMember'와 'member'가 같은지 여부 검사
         //  findMember == memer
-        assertThat(findMember).isEqualTo(member);
+        Assertions.assertThat(findMember).isEqualTo(member);
 
 
     }

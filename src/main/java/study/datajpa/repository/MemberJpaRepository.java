@@ -10,6 +10,8 @@ import study.datajpa.entity.Member;
 public class MemberJpaRepository {
 
 
+
+
     //=========================================================================================================
 
     @PersistenceContext //영속성 컨텍스트. 'EntityManger'를 통해  'em.persist()', 'em.find()' 등등을 사용하여
@@ -18,6 +20,7 @@ public class MemberJpaRepository {
 
     //=========================================================================================================
 
+    //[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 00:00~ ]. 실전! 스프링 데이터 JPA
     public Member save(Member member){
 
         //< 신규 회원 정보 Member 객체를 DB에 새롭게 저장(Create)시킴  >

@@ -9,7 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+//@NoaArgsConstructor: 만약 내가 여기 객체 안에 '사용자 생성자'를 만든다면, 그에 따라 이제 내가 직접 입력해줘야 하는 '기본 생성자'는
+//여기서 어노테이션으로 넣으면 안되고, 아래에서 내가 직접 'protected Member(){}' 이렇게 만들어줘야 함!
 @Data //단, 이거는 예제이니깐 그런 것이고, 실무에서는 엔티티에 '@Setter'를 넣어주는 것은 지양해야 함
 @Entity
 public class Member {
@@ -20,6 +21,10 @@ public class Member {
     private Long id;
 
     private String username;
+
+    private int age;
+
+    private Team team;
 
 
 
