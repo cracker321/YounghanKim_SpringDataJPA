@@ -2,8 +2,7 @@ package study.datajpa.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,12 @@ import java.util.List;
 //@NoaArgsConstructor: 만약 내가 여기 Team 객체 안에 '사용자 생성자'를 만든다면(예를 들어, @AllArgsConstructor를 사용할 경우,
 //이것도 어쨌든 '사용자 생성자'를 만드는 것임), 그에 따라 이제 내가 직접 입력해줘야 하는 '기본 생성자'는 여기서 어노테이션으로 넣으면 안되고,
 //아래에서 내가 직접 'protected Team(){}' 이렇게 만들어줘야 함!
-@Data
+//*****중요*****
+//근데, 저~ 아래에 직접 'protected Team(){}'이렇게 작성하는 여기에 'NoArgsConstructor(access = AccessLevel.PROTECTED)'를 적어주면
+//'protected 기본 생성자'를 작성한 것과 동일하다. 따라서, 어노테이션으로 대체하자!!
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Data //단, 이거는 예제이니깐 그런 것이고, 실무에서는 엔티티에 '@Setter'를 넣어주는 것은 지양해야 함
+@ToString(of = {"id", "name"})
 @Entity
 public class Team {
 
@@ -26,7 +30,7 @@ public class Team {
 
     //< '회원 Member 객체(N. 주인)' : '팀 Team 객체(1)' '양방향' 매핑 >
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    private List<Member> members = new ArrayList<>();
+    private List<Member> members = new ArrayList<>(); //'현재 팀에 소속된 전체 회원들의 목록'
 
     //- 'mappedBy = "team"'
     //: '주인인 Member 객체의 필드 team과 매핑됨'을 의미함.
@@ -99,8 +103,23 @@ public class Team {
     이렇게, CascadeType.ALL은 부모 엔티티(1. Team 객체)의 모든 변경이 자식 엔티티(N. Member 객체)에 전파되므로, 편리하게 관리 가능.
     */
 
-    protected Team(){
+    //===================================================================================================
 
-    }
+
+    //[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 09:05~ ]. 실전! 스프링 데이터 JPA
+
+    //< 기본 생성자 >
+    //- '엔티티 객체의 기본 생성자'를 만들 때는 반.드.시 'protected'로 해놔야 한다.
+    //  절대 'private'으로 하면 안된다!!
+    //- 프록시 객체 관련해서 뭐 그런 것인듯..강의 해당 부분 참고하기.
+    //- *****중요*****
+    //  근데, 아래처럼 여기에 작성하는 대신, 그냥 저~ 위에 'NoArgsConstructor(access = AccessLevel.PROTECTED)'를 적어주면
+    //  아래와 같이 'protected 기본 생성자'를 작성한 것과 동일하다. 어노테이션으로 대체하자!!
+
+//    protected Team(){
+//
+//    }
+
+    //===================================================================================================
 
 }
