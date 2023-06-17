@@ -1,16 +1,14 @@
 package study.datajpa.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//@NoaArgsConstructor: 만약 내가 여기 객체 안에 '사용자 생성자'를 만든다면, 그에 따라 이제 내가 직접 입력해줘야 하는 '기본 생성자'는
-//여기서 어노테이션으로 넣으면 안되고, 아래에서 내가 직접 'protected Member(){}' 이렇게 만들어줘야 함!
+//@NoaArgsConstructor: 만약 내가 여기 Member 객체 안에 '사용자 생성자'를 만든다면(예를 들어, @AllArgsConstructor를 사용할 경우,
+//이것도 어쨌든 '사용자 생성자'를 만드는 것임), 그에 따라 이제 내가 직접 입력해줘야 하는 '기본 생성자'는 여기서 어노테이션으로 넣으면 안되고,
+//아래에서 내가 직접 'protected Member(){}' 이렇게 만들어줘야 함!
 @Data //단, 이거는 예제이니깐 그런 것이고, 실무에서는 엔티티에 '@Setter'를 넣어주는 것은 지양해야 함
 @Entity
 public class Member {
@@ -18,14 +16,20 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MEMBER_ID") //DB테이블의 pk 이름은 이렇게 관례상 언더바(_)를 사용해서 만든다.
     private Long id;
 
     private String username;
 
     private int age;
 
-    private Team team;
 
+    //< '회원 Member 객체(N. 주인)' : '팀 Team 객체(1)' '양방향' 매핑 >
+    @ManyToOne(fetch = FetchType.LAZY) //'@ManyToOne', 'OneToOne'은 '기본설정이 즉시로딩 EAGER'이므로,
+                                       //여기서 반드시 '지연로딩 LAZY'로 설정 바꿔줘야 한다!
+    @JoinColumn(name = "TEAM_ID") //'주인이 아닌 테이블 TEAM의 PK 컬럼인 TEAM_ID'
+                                  //= '주인인 테이블 MEMBER의 FK 컬럼인 TEAM_ID'
+    private Team team;
 
 
     //=========================================================================================================
@@ -42,6 +46,7 @@ public class Member {
 
 
 
+    //=========================================================================================================
 
     //[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 09:05~ ]. 실전! 스프링 데이터 JPA
 
