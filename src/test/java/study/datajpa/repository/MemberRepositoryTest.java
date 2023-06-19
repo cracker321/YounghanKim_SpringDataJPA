@@ -20,12 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @Rollback(false) //@Transactional 은 원래 실행 후 다 롤백시키는데, 테스트용에서는 이거를 입력해줌으로써 롤백 안시킴.
 class MemberRepositoryTest {
 
+    //테스트 클래스 생성 단축키: ctrl + shift + T.
+    //                      '클래스 MemberRepository'의 화면에서 위 단축키 누르면 이 클래스 생성됨
+
     @Autowired
     MemberRepository memberRepository;
 
 
     @Test
-    public void testMember(){
+    public void testMember(){ //'테스트'는 메소드 단위!!
 
         //[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 18:50~ ]. 실전! 스프링 데이터 JPA
 

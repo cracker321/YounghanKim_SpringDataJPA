@@ -11,13 +11,14 @@ import study.datajpa.entity.Member;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-//스프링부트 업데이터 계속 되면서 이제 '@RunWith(SpringRunner.class)' 이것 안 적어줘도 알아서 다 작동시켜준다!
+//스프링부트 업데이트 계속 되면서 이제 '@RunWith(SpringRunner.class)' 이것 안 적어줘도 알아서 다 작동시켜준다!
 @Transactional //여러 옵션 어노테이션들 중 반드시 'org.springframework.transaction.annotation.Transactional'을 선택
 @SpringBootTest
 @Rollback(false) //@Transactional 은 원래 실행 후 다 롤백시키는데, 테스트용에서는 이거를 입력해줌으로써 롤백 안시킴.
 class MemberJpaRepositoryTest {
 
-
+    //테스트 클래스 생성 단축키: ctrl + shift + T.
+    //                      '클래스 MemberJpaRepository'의 화면에서 위 단축키 누르면 이 클래스 생성됨
 
     //=========================================================================================================
 
@@ -32,7 +33,7 @@ class MemberJpaRepositoryTest {
     //[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 07:15~ ]. 실전! 스프링 데이터 JPA
 
     @Test
-    public void testMember(){
+    public void testMember(){ //'테스트'는 메소드 단위!!
 
         //'회원 Member 객체'에서 '아래에 해당하는 사용자 생성자'를 만들었기에, 여기 테스트에서 이렇게
         //내가 원하는 '테스트용 회원 Member 객체'를 만들 수 있음.

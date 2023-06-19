@@ -38,31 +38,48 @@ public class Member {
 
 
     //< '회원 Member 객체(N. 주인)' : '팀 Team 객체(1)' '양방향' 매핑 >
-    @ManyToOne(fetch = FetchType.LAZY) //'@ManyToOne', 'OneToOne'은 '기본설정이 즉시로딩 EAGER'이므로,
-                                       //여기서 반드시 '지연로딩 LAZY'로 설정 바꿔줘야 한다!
+    @ManyToOne(fetch = FetchType.LAZY)
+    //'@ManyToOne', 'OneToOne'은 '기본설정이 즉시로딩 EAGER'이므로, 여기서 반드시 '지연로딩 LAZY'로 설정 바꿔줘야 한다!
+    //*****중요*****
+    //- JPA에서의 모든 연관관계는 기본적으로 다 지연로딩 LAZY로 해야 한다!
+    //- '외부 클래스 어딘가에서' '여기의 Member 객체를 조회'할 때, 'Member 객체의 내부의 필드(속성)인 Team team 객체는 조회하지 않고,
+    //  일단 가짜 객체로 '지연하여' 가지고 있다가, '이후' 'Team team 객체의 값이 실제 필요할 때(사용할 때) Member 객체 내부의 필드(속성)인
+    //  Team team 객체'를 db로부터 가져오는 것임.
     @JoinColumn(name = "TEAM_ID") //'주인이 아닌 테이블 TEAM의 PK 컬럼인 TEAM_ID'
                                   //= '주인인 테이블 MEMBER의 FK 컬럼인 TEAM_ID'
-    private Team team; //현재의 회원이 가지고 있는(소속되어 있는) 팀 정보
-
-    /*
-
-    @ManyToOne(fetch = FetchType.LAZY) //@ManyToOne, @OneToOne 은 기본설정이 즉시로딩 EAGER이므로, 여기서 반드시 지연로딩 LAZY로 설정 바꿔야함
-    @JonColumn(name = "TEAM_ID") //주인이 아닌 테이블 TEAM의 PK컬럼 TEAM_ID = 주인인 테이블 MEMBER의 FK컬럼인 TEAM_ID
-    private Team team;
-     */
-
+    private Team team; //'현재의 회원이 가지고 있는(소속되어 있는) 팀에 대한 정보'
 
     //=========================================================================================================
 
-    //< Test용으로 간단한 '사용자 생성자'를 만듦 >
+    //< Test용으로 간단한 '사용자 생성자 1'를 만듦 >
 
-    //'테스트 MemberJpaRepositoryTest'에서 '테스트용 새로운 회원 Member 객체'를 만들 때, 일단 간단히 '사용자이름 username'만
-    //가지고 있는 테스트용 객체를 만들기 위해, 여기에서 아래 사용자 생성자를 만듦.
+    //- '테스트 클래스 MemberJpaRepositoryTest'에서 '테스트용 새로운 회원 Member 객체'를 만들 때,
+    //  일단 간단히 '사용자이름 username'만 가지고 있는 테스트용 객체를 만들기 위해, 여기에서 아래 사용자 생성자를 만듦.
     //cf)여기서 이렇게 '사용자 생성자'를 만들었으니, 여기 '클래스 Member'에서 '기본 생성자'도 반드시 하나 만들어줘야 한다!
     //   그리고 그 기본 생성자를 만들기 위해 바로 아래에 'protected Member(){}'를 붙여줌.
     public Member(String username){
         this.username = username;
+
     }
+
+
+
+    //< Test용으로 간단한 '사용자 생성자 2'를 만듦 >
+
+    //- '테스트 클래스 MemberTest'에서 사용할 '테스트용 새로운 회원 Member 객체'를 생성하기 위해 만든 사용자 생성자임
+    public Member(String username, int age, Team team){
+
+        this.username = username;
+        this.age = age;
+        this.team = team;
+
+
+        if(team != null) {
+            changeTeam(team);
+        }
+
+    }
+
 
 
 
@@ -165,6 +182,7 @@ public class Member {
             //    - 'this.team': 현재 회원('this')의 이전 팀('this.team')에 접근함.
             //    - 'getMembers()': 현재 회원의 이전 팀의 '회원 전체 목록'에 접근함.
             //    - 'remove(this)': 현재 회원의 이전 팀의 '회원 전체 목록'에서 '현재 회원'을 '제거'함.
+            //                      '메소드 remove': '인터페이스 List'의 내장 메소드.
             //- 여기서 'this.team'은 '현재 다루고 있는 회원 Member 객체의 필드 team'을 의미함.
             //  즉, 'this'는 '현재 회원 Member 객체'을 의미하고,
             //  'this.team'은 '현재 회원이 현재 가지고 있는(소속되어 있는) 팀'을 의미함.
