@@ -44,6 +44,13 @@ public class Member {
                                   //= '주인인 테이블 MEMBER의 FK 컬럼인 TEAM_ID'
     private Team team; //현재의 회원이 가지고 있는(소속되어 있는) 팀 정보
 
+    /*
+
+    @ManyToOne(fetch = FetchType.LAZY) //@ManyToOne, @OneToOne 은 기본설정이 즉시로딩 EAGER이므로, 여기서 반드시 지연로딩 LAZY로 설정 바꿔야함
+    @JonColumn(name = "TEAM_ID") //주인이 아닌 테이블 TEAM의 PK컬럼 TEAM_ID = 주인인 테이블 MEMBER의 FK컬럼인 TEAM_ID
+    private Team team;
+     */
+
 
     //=========================================================================================================
 
@@ -80,13 +87,18 @@ public class Member {
 
         if(this.team != null){
 
-            team.getMembers().remove(team);
+            team.getMembers().remove(this);
+            //- 연관관계 편의 메소드는, '여기 내 현재 엔티티 Member'의 변화에 따라 자동으로 그 변동을 주고 싶은
+            //  '상대방 엔티티 객체 team'에 그 변화를 연동시키기 위함이니,
+            //  당연히, 구체적인 실행 로직의 중심을 '상대방 엔티티 객체 team'으로 해서 작성해야 함.
         }
+
 
         this.team = team;
 
-        if(team != null){
 
+        if(team != null){
+            team.getMembers().add(this);
 
         }
 
@@ -145,6 +157,9 @@ public class Member {
                 this.team.getMembers().remove(this);
                 }
 
+            //- 연관관계 편의 메소드는, '여기 내 현재 엔티티 Member'의 변화에 따라 자동으로 그 변동을 주고 싶은
+            //  '상대방 엔티티 객체 team'에 그 변화를 연동시키기 위함이니,
+            //  당연히, 구체적인 실행 로직의 중심을 '상대방 엔티티 객체 team'으로 해서 작성해야 함.
             //- 'if(this.team != null)': 현재 회원('this')이 기존에 어떤 팀이든 소속되어 있던 팀이 있는가 를 확인하는 것.
             //- 'this.team.getMembers().remove(this)': 현재 회원('this')을 이전 팀의 회원 목록에서 제거함.
             //    - 'this.team': 현재 회원('this')의 이전 팀('this.team')에 접근함.
@@ -153,8 +168,13 @@ public class Member {
             //- 여기서 'this.team'은 '현재 다루고 있는 회원 Member 객체의 필드 team'을 의미함.
             //  즉, 'this'는 '현재 회원 Member 객체'을 의미하고,
             //  'this.team'은 '현재 회원이 현재 가지고 있는(소속되어 있는) 팀'을 의미함.
-            //- 'this'는 '해당 메소드(여기서는 메소드 setTeam())를 호출하는 객체, 즉 현재 인스턴스'를 가리킴.
+            //- *****중요*****
+            // 'this'는 '해당 메소드(여기서는 메소드 setTeam())를 호출하는 객체, 즉 현재 인스턴스'를 가리킴.
             //  여기서 'this'는 '현재의 회원 Member 객체 그 자체'를 의미함.
+            //- *****중요*****
+            //  연관관계 편의 메소드는, '여기 내 현재 엔티티 Member'의 변화에 따라 자동으로 그 변동을 주고 싶은
+            //  '상대방 엔티티 객체 team'에 그 변화를 연동시키기 위함이니,
+            //  당연히, 구체적인 실행 로직의 중심을 '상대방 엔티티 객체 team'으로 해서 작성해야 함.
             //- *****중요*****
             //  'Step 1'에서의 'this.team'은 '외부 클래스 어딘가에서 현재 메소드를 새로운 인자값으로 들어온 새롭게 주어질 team이
             //   들어오기 '전'에 원래 현재 회원이 소속되어 있던 기존 팀'.

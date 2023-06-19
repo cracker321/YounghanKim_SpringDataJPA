@@ -30,7 +30,7 @@ public class Team {
 
     //< '회원 Member 객체(N. 주인)' : '팀 Team 객체(1)' '양방향' 매핑 >
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    private List<Member> members = new ArrayList<>(); //'현재 팀에 소속된 전체 회원들의 목록'
+    private List<Member> members = new ArrayList<>(); //'현재 팀에 소속된 전체 회원들의 목록 List'
 
     //- 'mappedBy = "team"'
     //: '주인인 Member 객체의 필드 team과 매핑됨'을 의미함.
