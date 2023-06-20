@@ -8,6 +8,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -69,6 +72,69 @@ class MemberJpaRepositoryTest {
 
     //=========================================================================================================
 
+
+    //< 레펏 MemberJpaRepository의 CRUD 메소드 기능들 테스트 >
+
+    @Test
+    public void basicCRUD(){
+
+        Member member1 = new Member("member1");
+        Member member2 = new Member("member2");
+
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+
+
+        //=========================================================================================================
+
+        //< 회원 단건 조회 검증 >
+
+        //DB로부터 Member1을 꺼내와서 조회함
+        Optional<Member> byId1 = memberJpaRepository.findById(member1.getId());
+        Member findMember1 = byId1.get();
+
+
+        //DB로부터 Member2를 꺼내와서 조회함
+        Optional<Member> byId2 = memberJpaRepository.findById(member2.getId());
+        Member findMember2 = byId2.get();
+
+
+        Assertions.assertThat(findMember1).isEqualTo(member1);
+        Assertions.assertThat(findMember2).isEqualTo(member2);
+
+
+        //=========================================================================================================
+
+
+        //< 전체 회원 조회 검증 >
+
+        List<Member> members = memberJpaRepository.findAll();
+
+        Assertions.assertThat(members.size()).isEqualTo(2);
+
+
+        //=========================================================================================================
+
+
+        //< 전체 회원 카운팅 검증 >
+
+        long memberCount = memberJpaRepository.count();
+
+        Assertions.assertThat(memberCount).isEqualTo(2);
+
+
+        //=========================================================================================================
+
+
+        //< 회원 삭제 검증 >
+
+        memberJpaRepository.delete(member1);
+        memberJpaRepository.delete(member2);
+
+        long deletedMemberCount = memberJpaRepository.count();
+        Assertions.assertThat(deletedMemberCount).isEqualTo(0);
+
+    }
 
 
 }

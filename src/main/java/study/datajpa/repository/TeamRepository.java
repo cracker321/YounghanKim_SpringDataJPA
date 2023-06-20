@@ -1,101 +1,17 @@
 package study.datajpa.repository;
 
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import study.datajpa.entity.Team;
 
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public class TeamRepository {
-
-
-    @PersistenceContext
-    private EntityManager em;
-
-
-    //=========================================================================================================
-
-    //< 신규 팀 저장 Create >
+//@Repository : 이 어노테이션 작성 안해줘도 됨.
+//              '내장 레펏 JpaRepository'를 상속받는 순간, 스프링 데이터 JPA가 아래 '레펏 TeamRepository'를
+//              자동으로 '레퍼지토리'로 인식하기 때문이다.
+public interface TeamRepository extends JpaRepository<Team, Long> {
+    //- 'Team': '팀 Team 객체의 타입'
+    //- 'Long': '팀 Team 객체'의 '필드 pk의 타입(=Long)'
+    //- '내장 레펏 JpaRepository'를 상속받아도 되고, '내장 레펏 CrudRepository'를 상속받아도 됨.
+    //  보통은 '내장 레펏 JpaRepository'를 상속받음.
 
 
-    public Team save(Team team){
-
-        em.persist(team);
-
-        return team;
-
-    }
-
-    //=========================================================================================================
-
-
-
-    //< v1. 팀 단건 조회 Read >: Optional<> 사용 X
-
-
-    public Team find(Long id){ //매개변수의 타입이 중요하지, 그 매개변수의 이름은 아~무 상관 없다!
-
-        return em.find(Team.class, id);
-
-
-    }
-
-
-    //=========================================================================================================
-
-
-    //< v2. 팀 단건 조회 Read >: Optional 사용 O
-
-    public Optional<Team> findById(Long id){
-
-
-        Team team = em.find(Team.class, id);
-        return Optional.ofNullable(team);
-
-    }
-
-
-    //=========================================================================================================
-
-
-    //< 모든 팀 조회 Read >
-
-    public List<Team> findAll(){
-
-        return em.createQuery("select t from Team t", Team.class)
-                .getResultList();
-
-    }
-
-
-    //=========================================================================================================
-
-
-    //< 전체 팀의 수 카운트 Count >
-
-    public Long count(){
-
-        return em.createQuery("select count(t) from Team t", Long.class)
-                .getSingleResult();
-
-    }
-
-
-    //=========================================================================================================
-
-
-    //< 팀 삭제 Delete >
-
-
-    public void delete(Team team){
-
-        em.remove(team);
-    }
-
-    //=========================================================================================================
 
 }
