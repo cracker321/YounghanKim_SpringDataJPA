@@ -82,6 +82,18 @@ public class Member {
 
 
 
+    //< Test용으로 간단한 '사용자 생성자 2'를 만듦 >
+
+    //- '테스트 클래스 MemberJpaRepository'에서 사용할 '테스트용 새로운 회원 Member 객체'를 생성하기 위해 만든 사용자 생성자임
+
+    public Member(String username, int age) {
+
+        this.username = username;
+        this.age = age;
+
+    }
+
+
 
     //=========================================================================================================
 

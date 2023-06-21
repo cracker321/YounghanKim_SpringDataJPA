@@ -134,6 +134,34 @@ class MemberJpaRepositoryTest {
         long deletedMemberCount = memberJpaRepository.count();
         Assertions.assertThat(deletedMemberCount).isEqualTo(0);
 
+
+        //=========================================================================================================
+
+
+        //< '특정 회원의 나이가 ~살 보다 더 많은 경우'에 대해 레퍼지터리에 JPQL 쿼리를 직접 만들기'를 검증 >.
+        //'레펏 MemberJpaRepository' 내부 메소드임.
+
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+
+        memberJpaRepository.save(m1);
+        memberJpaRepository.save(m2);
+
+
+        List<Member> greaterMembers = memberJpaRepository.findByUsernameAndAgeGreaterThan("AAA", 15);
+
+
+        Assertions.assertThat(greaterMembers.get(0).getUsername()).isEqualTo("AAA");
+        Assertions.assertThat(greaterMembers.get(0).getAge()).isEqualTo("10");
+        //- 'get(n)': 'List 객체의 내장 메소드 get()'. n번 인덱스 원소를 불러옴.
+        Assertions.assertThat(greaterMembers.size()).isEqualTo(1);
+
+
+        //=========================================================================================================
+
+
+
+
     }
 
 
