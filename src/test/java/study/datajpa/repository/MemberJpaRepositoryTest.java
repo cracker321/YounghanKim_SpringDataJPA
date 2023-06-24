@@ -4,6 +4,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
@@ -28,6 +31,9 @@ class MemberJpaRepositoryTest {
 
     @Autowired
     MemberJpaRepository memberJpaRepository;
+
+    @Autowired
+    MemberRepository memberRepository;
 
 
     //=========================================================================================================
@@ -159,10 +165,65 @@ class MemberJpaRepositoryTest {
 
         //=========================================================================================================
 
+        }
 
 
+    //=========================================================================================================
+
+
+    //[ '순수 JPA 페이징과 정렬'강 ] 실전! 스프링 데이터 JPA. p35 pdf
+
+    //< '순수 스프링 JPA'로 사용된 '레펏 MemberJpaRepository의 페이징 메소드 findByPage'의 기능 테스트 >
+
+    @Test
+    public void paging() {
+
+        //given
+        //테스트용 새로운 회원 객체 5개 생성함.
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 10));
+        memberJpaRepository.save(new Member("member3", 10));
+        memberJpaRepository.save(new Member("member4", 10));
+        memberJpaRepository.save(new Member("member5", 10));
+
+
+
+        //when
+        //< '한 페이지 당 보여줄 데이터(여기서는 '한 페이지 당' 보여줄, 주어진 조건에 해당되는 회원 Member 객체들의 목록 리스트)를 만드는
+        //  '메소드 findByPage'>
+
+        //'순수 스프링 JPA의 페이징 메소드인 레펏 MemberJpaRepository의 메소드 findByPage'를 호출함.
+
+        int age11 = 10;
+        int offset = 0;
+        int limit = 3;
+
+
+        List<Member> resultMembersPerPage = memberJpaRepository.findByPage(age11, offset, limit);
+
+
+
+        //< '순수 스프링 JPA'에서의 페이징 할 때 당연히 필요한 '한 페이지 당 보여줄, 주어진 조건에 해당되는 데이터(한 페이지 당
+        // 보여줄,주어진 조건에 해당되는 회원 Member 객체들의 목록 리스트')의 개수를 구하기 위한
+        // '한 페이지 당이 아닌, 주어진 조건에 해당하는 전체 총 데이터(주어진 조건에 해당되는 총 전체 회원 Member 객체들의 개수')
+        // 를 가져오는 '메소드 totalCount' >
+
+        long resultTotalCount = memberJpaRepository.totalCount(age11);
+
+
+        Assertions.assertThat(resultMembersPerPage.size()).isEqualTo(3);
+        Assertions.assertThat(resultTotalCount).isEqualTo(5);
 
     }
+
+
+    //=========================================================================================================
+
+
+
+    //=========================================================================================================
+
+
 
 
 }

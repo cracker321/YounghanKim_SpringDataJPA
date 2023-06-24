@@ -1,6 +1,9 @@
 package study.datajpa.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -107,6 +110,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> { //'인�
     //- '@Param("username11")': '어노테이션 @Param의 인자값(=파라미터의 실제값)이 들어오는 통로로 사용됨'.
     //                          '쿼리 메소드 findUser의 매개변수 username22으로 들어오는 실제 인자값'과
     //                          'JPQL 쿼리의 파라미터인 :username11'을 서로 '매핑하는 역할'임.
+    //                          여기서의 'username11'은 '파라미터의 이름'이다.
+    //                          'String username22'로 실제 전달되어 들어온 값을,
+    //                          다시 ':username11'로 전달해주기 위해 서로 '매핑, 바인딩시켜주는 역할'임.
 
     //- 'String username22': 이건 그냥 아무렇게나 작성해줘도 됨. 'username'으로 해도 되고, 'username22'로 해도 되고 무관함.
     //                       (정확히 알아보기..!)
@@ -138,22 +144,24 @@ public interface MemberRepository extends JpaRepository<Member, Long> { //'인�
     //- '회원 Member 객체의 필드(컬럼)들 중'에 '필드(컬럼) username'만 select 해서 보여줘라!' 라는 의미임.
     //  리턴타입이 '회원 이름(당연히 '문자열 타입')에 맞는 String 타입'이기 떄문에, '<String> 타입'으로 설정하였고,
     //  이렇게만 작성해도 '전체 회원 목록'을 가져올 수 있음.
+    @Query("select m.username from Member m")
+    List<String> findUsernameList();
+
+
     //- 만약, '전체 회원 리스트 '객체''를 가져오고 싶었다면,
     //  @Query("select m from Member m")
     //  List<Member> find...();
     //  이렇게 작성하면 된다!
-    @Query("select m.username from Member m")
-    List<String> findUsernameList();
 
 
 
     //=========================================================================================================
 
+    //[ '@Query, 값, DTO 조회하기'강  02:10 ] 실전! 스프링 데이터 JPA. p33 pdf
+
+    //- 실무에서 자주 쓰임.
 
     //< '전체 회원 리스트 목록(List) 'MemberDto 객체들''을 가져오기 >
-
-    //[ '@Query, 값, DTO 조회하기'강  02:10 ] 실전! 스프링 데이터 JPA. p33 pdf
-    //- 실무에 자주 쓰임.
 
 
     //- 조회해서 불러오고자 하는 DTO 객체를 아래 @Query(..)의 내부에 'new 연산자를 사용하여 직접 생성'하여 선택(select)함.
@@ -168,16 +176,174 @@ public interface MemberRepository extends JpaRepository<Member, Long> { //'인�
     List<MemberDto> findMemberDto();
 
 
+    //=========================================================================================================
+
+
+    //[ '반환 타입'강  00:00 ] 실전! 스프링 데이터 JPA. p35 pdf
+
+
+    /*
+
+    스프링 데이터 JPA는 유연한 반환 타입을 지원함
+
+    1.컬렉션(리스트, 집합, 맵..) 타입
+      : List<Member< findByUsername(String name);
+    2.단건 객체 조회
+      : Member findByUsername(String name);
+    3.Optional<T> 타입
+      : Optional<Member< findByUsername(String name);
+
+
+
+    < 위 1~3의 데이터 조회 결과인 반환값의 건수(개수)가 그 타입의 특성에 맞지 않는 경우, 스프링 데이터 JPA가 이를 처리하는 방법 >
+
+
+    1.데이터 조회 결과의 반환값 개수가 0건 인 경우
+      (1) List<> 등 컬렉션인 경우(List객체 이기에 당연히 반환값 개수가 2건 이상인 게 정상임)
+      : 빈 컬렉션 반환(반환값이 '0'임)
+      (2) 단건 객체 조회의 경우(단건 객체만 조회하는 것이기에 당연히 반환값 개수가 1건이어야 함)
+      : null 반환(원래라면 '특정 객체 1건'에 대한 정보를 반환하는 것임)
+
+    *****결론*****
+    - 따라서, '단건 객체 조회'의 경우, 그 데이터가 DB에 있는지 아닌지 불확실할 때는,
+      그냥 'Optional<T> 타입'을 사용하는 것이 가장 무난하다!
+      (.orElse 사용)
+
+
+
+    2.데이터 조회 결과의 반환값 개수 2건 이상인 경우
+      (1) 단건 객체 조회의 경우(단건 객체만 조회하는 것이기에 당연히 반환값 개수가 1건이어야 함)
+      : NotUniqueResultException 반환.
+
+     */
 
 
     //=========================================================================================================
 
 
+    //[ '스프링 데이터 JPA 페이징과 정렬'강  00:00 ] 실전! 스프링 데이터 JPA. p37 pdf
+
+    //< '순수 스프링 JPA가 아닌', '스프링 데이터 JPA를 사용한 페이징 메소드인 레펏 MemberRepository의 메소드 findByPage' 작성 >
+
+    //< 순서 >
+
+    //1. 스프링 데이터 JPA의 인터페이스 JpaRepository를 상속받는 레퍼지터리에 Page타입 페이징 메소드 findByAge를 작성한다.
+    //2. 외부 클래스에서 '레펏 MemberRepository의 메소드 findByAge'를 호출한다.
+    //   (여기서는 지금 '테스트클래스 MemberRepository' 내부에서 이 메소드 findByAge를 호출했고, 관련 설명들 다 거기에 있음.
+    //3. 그 외부 클래스에 'PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));'
+    //   와 같이 작성해줌.
+    //4. 그 외부 클래스에
+    //   int age11 = 10;
+    //   Page<Member> resultMembersPerPage = memberRepository.findByAge(age11, pageRequest);
+    //   와 같이 작성해줌.
+    //5. 이제 거기서 내가 필요한 기능들에 해당하는 내장 메소드들을 사용하여 페이징을 사용하면 됨.
+    /* 아래처럼 내가 필요한 기능들에 해당하는 내장 메소드들을 사용하면 됨.
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getContent()'
+            //  : 현재 페이지의 데이터를 가져옴
+            List<Member> content = resultMembersPerPage.getContent();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getTotalElements()'
+            //  : '순수 스프링 JPA에서의' '주어진 조건에 해당하는 전체 총 데이터를 보여주는 메소드 totalCount'를 대신함.
+            long totalElements = resultMembersPerPage.getTotalElements();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getNumber()'
+            //  : 현재 페이지의 번호를 가져오는 메소드
+            resultMembersPerPage.getNumber();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getTotalPages()'
+            //  : 총 페이지의 개수
+            resultMembersPerPage.getTotalPages();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 isFirst()'
+            //  :
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 hasNext()'
+            //  : 다음 페이지가 있는지 여부를 boolean 타입으로 보여줌.
+
+     */
+
+    Page<Member> findByAge(int age, Pageable pageable);
 
 
     //=========================================================================================================
 
 
+    //[ '스프링 데이터 JPA 페이징과 정렬'강  13:15 ] 실전! 스프링 데이터 JPA. p39 pdf
+
+    //< 인터페이스 Slice >
+
+
+    //- '..더보기'와 같은 것..?(?)
+    //- Slice 인터페이스를 사용하면 얻어온 페이지의 데이터와 함께 다음 페이지 여부를 얻을 수 있어,
+    //  일부 데이터를 요청하는 상황에서 성능 및 사용성을 개선하는데 도움을 줍니다.
+
+    //< 순서 >
+
+    //1. 스프링 데이터 JPA의 인터페이스 JpaRepository를 상속받는 레퍼지터리에 Slice타입 메소드 findByAge2를 작성한다.
+    //2. 외부 클래스에서 '레펏 MemberRepository의 메소드 findByAge2'를 호출한다.
+    //   (여기서는 지금 '테스트클래스 MemberRepository' 내부에서 이 메소드 findByAge를 호출했고, 관련 설명들 다 거기에 있음.
+    //3. 그 외부 클래스에 'PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));'
+    //   와 같이 작성해줌.
+    //4. 그 외부 클래스에
+    //   int age11 = 10;
+    //   Slice<Member> resultMembersPerPage = memberRepository.findByAge(age11, pageRequest);
+    //   와 같이 작성해줌.
+    //5. 이제 거기서 내가 필요한 기능들에 해당하는 내장 메소드들을 사용하여 페이징을 사용하면 됨.
+
+    /* 아래처럼 내가 필요한 기능들에 해당하는 내장 메소드들을 사용하면 됨.
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getContent()'
+            //  : 현재 페이지의 데이터를 가져옴
+            List<Member> content = resultMembersPerPage.getContent();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 getNumber()'
+            //  : 현재 페이지의 번호를 가져오는 메소드
+            resultMembersPerPage.getNumber();
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 isFirst()'
+            //  :
+
+
+            //# '스프링 데이터 JPA의 페이징 인터페이스 Pageable의 내장 메소드 hasNext()'
+            //  : 다음 페이지가 있는지 여부를 boolean 타입으로 보여줌.
+
+
+
+# pdf p39
+public interface Slice<T> extends Streamable<T> {
+int getNumber(); //􀴅􀩤 􀲕􀩉􀫑
+int getSize(); //􀲕􀩉􀫑 􀯼􀓝
+int getNumberOfElements(); //􀴅􀩤 􀲕􀩉􀫑􀧀 􀕡􀧢 􀘘􀩉􀰠 􀣻
+List<T> getContent(); //􀪑􀴥􀘻 􀘘􀩉􀰠
+boolean hasContent(); //􀪑􀴥􀘻 􀘘􀩉􀰠 􀪓􀩤 􀧈􀠗
+Sort getSort(); //􀩿􀛳 􀩿􀠁
+boolean isFirst(); //􀴅􀩤 􀲕􀩉􀫑􀐾 􀭐 􀲕􀩉􀫑 􀩋􀫑 􀧈􀠗
+boolean isLast(); //􀴅􀩤 􀲕􀩉􀫑􀐾 􀝃􀫑􀝄 􀲕􀩉􀫑 􀩋􀫑 􀧈􀠗
+boolean hasNext(); //􀗮􀨺 􀲕􀩉􀫑 􀧈􀠗
+boolean hasPrevious(); //􀩉􀩹 􀲕􀩉􀫑 􀧈􀠗
+Pageable getPageable(); //􀲕􀩉􀫑 􀨃􀭒 􀩿􀠁
+Pageable nextPageable(); //􀗮􀨺 􀲕􀩉􀫑 􀑑􀭓
+Pageable previousPageable();//􀩉􀩹 􀲕􀩉􀫑 􀑑􀭓
+<U> Slice<U> map(Function<? super T, ? extends U> converter); //􀟸􀴜􀓝
+}
+
+
+
+     */
+    Slice<Member> findByAgeSlice(int age, Pageable pageable);
+
+
+
+    //=========================================================================================================
 
 
 }
