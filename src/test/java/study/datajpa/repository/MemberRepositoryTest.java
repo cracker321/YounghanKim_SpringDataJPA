@@ -382,7 +382,7 @@ class MemberRepositoryTest {
 
 
         //[ '@EntityGraph'강  00:00 ] 실전! 스프링 데이터 JPA. pdf p42
-
+        //'클래스 MemberRepository'의 내부에 설명 다 해놓음.
 
         @Test
         public void findMemberLazy(){

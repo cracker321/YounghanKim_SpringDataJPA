@@ -1,6 +1,7 @@
 package study.datajpa.repository;
 
 
+import jakarta.persistence.Entity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -374,43 +375,89 @@ Pageable previousPageable();//􀩉􀩹 􀲕􀩉􀫑 􀑑􀭓
     //- JPA에서 쿼리 실행 시 'EntityGraph'를 사용하여, 연관된 엔티티를 지연로딩(FetchType.LAZY)이 아닌
     //  즉시로딩(FetchType.EAGER)으로 '함께 로딩'할 수 있음.
     //- 사용하는 상황
+    //  전제: 간단한 쿼리를 짜야 되긴 하는데, JPQL 쿼리로 작성하긴 귀찮을 경우에 사용함.
+    //       복잡한 쿼리를 사용해야 하는 경우에는, 스프링 데이터 JPA의 @Entitygraph가 아닌
+    //       JPQL의 fetch join을 사용해서 복잡한 쿼리를 짠다!
+    //       특히, @EntityGraph를 사용할 경우, 저~ 아래의 '케이스 4' 경우를 실무에서 주로 사용함.
     //  (1) 외부 클래스에서 해당 메소드의 엔티티 객체를 조회하는 동시에, 그 엔티티와 연관된 엔티티의 조회도 함께 필요한 경우
     //  (2) N+1 문제를 방지하고자 할 때
     //  (3) 기존에 성능 최적화를 위해 해당 엔티티의 필드(속성)으로 설정된 연관된 특정 엔티티를 FetchType.LAZY로 설정했을 때,
     //      그 해당 엔티티를 조회할 때, 그 해당 엔티티의 필드(속성)으로 설정된 연관된 특정 엔티티를 FetchType.EAGER를 사용하여
     //      명시적으로 그 연관 엔티티를 로드하려는 경우
     //- 사용법 순서
-    //  (1) 최초 조회의 대상이 되는 엔티티 클래스(여기서는 회원 Member 엔티티) 위에 '@NamedEntityGraph'를 사용하여 그래프를 정의하고,
-    //  (2) '내장 레펏인 JpaRepository를 상속받는 레펏 MemberRepository의 메소드 findMemberFetchJoin()'의 위에
+    //  (1) '내장 레펏인 JpaRepository를 상속받는 레펏 MemberRepository의 메소드 findMemberFetchJoin()'의 위에
     //      '@EntityGraph'를 선언함. 즉, @EntityGraph를 사용할 메소드를 선언하는 것임.
-    //  (3) @EntityGraph의 attributePaths 속성에 즉시로딩 EAGRER로 로딩하고 싶은 필드(속성)의 이름을 넣음
-    //  (4) 외부 클래스 어딘가에서 해당 메소드를 호출하면, 설정한 attributtes 속성에 지정된 연관 엔티티를 같이 조회해서 가져옴
-    //  (5) 데이터 조회 속도가 개선됨
+    //  (2) @EntityGraph의 attributePaths 속성에 즉시로딩 EAGRER로 로딩하고 싶은 필드(속성)의 이름을 넣음
+    //  (3) 외부 클래스 어딘가에서 해당 메소드를 호출하면, 설정한 attributtes 속성에 지정된 연관 엔티티를 같이 조회해서 가져옴
     //- 장점
     //  (1) 한 번의 쿼리로, 필요한 엔티티들을 모두 조회하여 최적의 성능을 낼 수 있음
     //  (2) FetchType.LAZY와 FetchType.EAGER 설정을 동적으로 변경 가능하여 코드 유연성 제공
+    //  (3) 데이터 조회 속도가 개선됨
     //- 단점
     //  (1) 지나친 사용이 성능 저하를 초래할 수 있음. 조인으로 인해 데이터 건수가 증가하면 추가되는 레코드들 때문임.
 
 
+    //--------------------------------------------------------------------------------------------------
 
-//    Step 1: @EntityGraph를 사용할 메소드를 선언
-//    Step 2: attributePaths 속성에 EAGER로 로딩하고 싶은 속성의 이름을 넣음
-//    Step 3: 해당 메소드를 호출하면, 설정한 attributePaths에 지정된 연관 Entity를 같이 조회
-//    Step 4: 데이터 조회 속도가 개선됩니다.
+    //cf) @EntityGraph(atrributes = "team")과
+    //    @EntityGraph(atrributes = {"team"})과
+    //    @EntityGraph(atrributes = ("team"))은 모두 동일하다. 단순 문법적 차이이며, 의미상 동일함.
 
-    @EntityGraph(attributePaths = "team")
+    //--------------------------------------------------------------------------------------------------
+    
+    //< 케이스0: '@EntityGraph'를 사용하지 않고, 그냥 JPQL에서의 fetch join을 사용하는 경우 >
+    //
     @Query("select m from Member m left join fetch m.team")
     List<Member> findMemberFetchJoin();
 
 
+    //--------------------------------------------------------------------------------------------------
+    
+
+    //< 케이스1: '사용자 정의 메소드' 를 사용할 경우 >
+    @EntityGraph(attributePaths = "team")
+    List<Member> findMemberEntityGraph1();
+
+
+    //--------------------------------------------------------------------------------------------------
+    
+    
+    //< 케이스2: 'JpaRepository의 내장 메소드'를 사용할 경우 >
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+
+    //--------------------------------------------------------------------------------------------------
+    
+    
+    //< 케이스3: JPQL 사용자 쿼리를 먼저 작성한 후, @EntityGraph(..)을 추가 작성하여 '즉시로딩 EAGER'로 설정해주고 싶은 경우 >
+    //- '케이스2'와 동일한 결과를 도출해냄.
+    @EntityGraph(attributePaths = {"team"})
+    @Query("SELECT m FROM Member m")
+    List<Member> findMemberEntityGraph2();
+
+
+    //--------------------------------------------------------------------------------------------------
+    
+    
+    //< 케이스4: '쿼리메소드 방식'으로 사용하기 >
+    //- '회원 Member 객체'를 조회할 때, 회원 엔티티와 연관 엔티티인 '팀 Team 엔티티 객체'를 동시에 조회해오기
+    //- 김영한님은 케이스4를 자주 사용하신다 함.
+    //  그리고, 쿼리가 복잡해지면, @EntityGraph를 사용하지 않고 그냥 바로 'JPQL의 fetch join'을 사용한다 함.
+    @EntityGraph(attributePaths = ("team"))
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+
+    //--------------------------------------------------------------------------------------------------
 
 
     //< 'JPQL쿼리에서 사용되는 fetch join'과 '스프링 데이터 JPA의 어노테이션 @EntityGraph'의 공통점 및 차이점 >
 
     //1. 공통점
     //- JPA에서 외부 클래스에서 특정 레퍼지터리를 통해 어떤 엔티티를 조회할 때, 그와 연관된 다른 엔티티도 함께 로딩하는 방법.
-    //- 쿼리 실행 시, 관련된 엔티티를 즉시로딩(EAGER)할 수 있으며, N+1 문제를 방지하여 성능을 향상시킴
+    //- 쿼리 실행 시, 관련된 엔티티를 즉시로딩(EAGER)할 수 있으며, N+1 문제를 방지하여 성능을 향상시킴.
+
     //2. 차이점
     //  (1) fetch join
     //   - 'JPQL 쿼리'에서 'JOIN FETCH'를 사용하여 로딩할 연관 엔티티를 직접 지정함.
@@ -420,5 +467,20 @@ Pageable previousPageable();//􀩉􀩹 􀲕􀩉􀫑 􀑑􀭓
     //   - 메소드 또는 쿼리 위에 어노테이션을 넣어서, 특정 그래프를 사용하도록 알려주는 방식.
     //     e.g) @EntityGraph(attributePaths = "customer")
     //          List<Order> findAll();
+
+
+    //=========================================================================================================
+
+
+
+
+
+
+
+    //=========================================================================================================
+    
+    
+    
+    
 
 }
