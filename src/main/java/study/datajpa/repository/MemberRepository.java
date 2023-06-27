@@ -17,17 +17,42 @@ import study.datajpa.entity.Team;
 import java.util.List;
 
 
-//[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 17:40~ ]. 실전! 스프링 데이터 JPA
+//--------------------------------------------------------------------------------------------------
 
+
+//[ '스프링 데이터 JPA와 DB 설정, 동작확인'강. 17:40~ ]. 실전! 스프링 데이터 JPA
 
 //- '내장 레펏 JpaRepository'는 JPA로 개발할 때, 개발자가 상상할 수 있는 웬만한 공통 기능은 다 제공함. 이 정도면 충분하다고 함.
 
+
+//--------------------------------------------------------------------------------------------------
+
+
+//[ '사용자 정의 리포지토리 구현'강  03:00 ] 실전! 스프링 데이터 JPA. pdf p47
+
+//- 1.'레퍼지터리(인터페이스) MemberRepository'가 '다중상속' 하고 있는 인터페이스 2개 중에 하나가
+//  바로 이 '사용자 정의 인터페이스 MemberRepositoryCustom'이고,
+//  (하나는 '스프링 데이터 JPA의 내장 인터페이스 JpaRepository'이고,
+//   하나는 '사용자 정의 레퍼지터리를 만들기 위해 생성한 사용자 정의 인터페이스 MemberRepositoryCustom'임)
+//  2.그 '사용자 정의 인터페이스 MemberRepositoryCustom' 내부의 추상 메소드들의 구현부들을 작성해주기 위해 존재하는
+//  3.'구체화하는 클래스 MemberRepositoryCustom'의 내부에 '구체화 메소드 findMemberCustom'이 존재함.
+
+//- 이를 통해,
+//  1.외부 클래스 어딘가에서 '레퍼지터리(인터페이스) MemberRepsotory를 참조하여
+//  2.'MemberRepositoryImpl의 내부 메소드 findMemberCustom을 호출('memberRepository.findMemberCustom' 이렇게 작성)
+//  할 수 있게 된다!
+
+
+//--------------------------------------------------------------------------------------------------
 
 
 //@Repository : 이 어노테이션 작성 안해줘도 됨.
 //              '내장 레펏 JpaRepository'를 상속받는 순간, 스프링 데이터 JPA가 아래 '레펏 TeamRepository'를
 //              자동으로 '레퍼지토리'로 인식하기 때문이다.
-public interface MemberRepository extends JpaRepository<Member, Long> { //'인터페이스'가 '인터페이스'를 '상속'받음
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
+    //- '인터페이스'가 '2개의 인터페이스'들을 '다중 상속'받음.
+    //  하나는 '스프링 데이터 JPA의 내장 인터페이스 JpaRepository'이고,
+    //  하나는 '사용자 정의 레퍼지터리를 만들기 위해 생성한 인터페이스 MemberRepositoryCustom'임.
     //- 'Member': '회원 Member객체의 타입'
     //- 'Long': '회원 Memeber 객체'의 '필드 pk의 타입(=Long)'
 
