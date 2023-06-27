@@ -323,16 +323,26 @@ public class MemberJpaRepository {
 
     //[ '벌크성 수정 쿼리'강  00:00 ] 실전! 스프링 데이터 JPA. pdf p41
 
-    //< JPQL에서 엔티티 객체의 필드(속성)값을 변경 수정 Update 하는 쿼리에 사용하는 키워드: SET >
+    //< '순수 스프링 JPA' '엔티티 객체의 필드(속성)값을 변경 수정 Update'하는 쿼리에 사용하는 키워드: SET >
 
     //- 사용법: em.createQuery("UPDATE  Entity명(=엔티티명)  e  SET  e.preoperty이름(=필드명) = :새로운 값  WHERE 필터링조건")
-    //- e.g.1) '명령어 SET'을 사용하여 한 번에 '사용자 User 엔티티 객체'의 '필드(속성) name', '필드(속성) age' 등 다중 속성 값 수정.
+    //- e.g.) '명령어 SET'을 사용하여 한 번에 '사용자 User 엔티티 객체'의 '필드(속성) name', '필드(속성) age' 등 다중 속성 값 수정.
     // int updatedCount = em.createQuery("UPDATE User u SET u.name = :u.newName, u.age = :newAge WHERE u.id = userId")
     //                      .setParameter("newName", "조유종")
     //                      .setParameter("newAge", 25)
     //                      .setParameter("userId", 1L);
     //                      .executeUpdate();
     //- '내장 메소드 executeUpdate()': 변경 명령 쿼리로 인해 '변경된 엔티티의 총 개수'를 '정숫값'으로 반환해줌.
+
+    public int bulkAgePlus(int age){
+
+        int resultCount = em.createQuery("UPDATE Member m SET m.age = age + 1 WHERE m.age >= :age")
+                                    .setParameter("age", age)
+                                    .executeUpdate();
+
+        return resultCount;
+    }
+
 
 
 

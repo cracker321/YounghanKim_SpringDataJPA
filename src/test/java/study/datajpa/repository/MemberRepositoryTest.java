@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,11 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
+
 
 
     @Test
@@ -289,10 +297,8 @@ class MemberRepositoryTest {
         Slice<Member> resultSliceMembersPerPage = memberRepository.findByAgeSlice(age11, pageRequest);
 
 
-
         Slice<MemberDto> toResultSliceMembersPerPageDto = resultSliceMembersPerPage
-                                .map(m -> new MemberDto(m.getId(), m.getUsername(), null));
-
+                .map(m -> new MemberDto(m.getId(), m.getUsername(), null));
 
 
         //--------------------------------------------------------------------------------------------------
@@ -330,10 +336,104 @@ class MemberRepositoryTest {
         //  : 다음 페이지가 있는지 여부를 boolean 타입으로 확인한 결과(T or F)를 반환함.
         resultSliceMembersPerPage.hasNext();
 
+        }
+        //=========================================================================================================
+
+
+        //[ '벌크성 수정 쿼리'강  05:00 ] 실전! 스프링 데이터 JPA. pdf p41
+
+        @Test
+        public void bulkUpdate(){
+
+            memberRepository.save(new Member("member1", 10));
+            memberRepository.save(new Member("member2", 19));
+            memberRepository.save(new Member("member3", 20));
+            memberRepository.save(new Member("member4", 21));
+            memberRepository.save(new Member("member5", 40));
+
+
+
+
+            int resultCount = memberRepository.bulkAgePlus(20);
+            //*****중요*****
+            //'스프링 데이터 JPA'에서 'update 수정 벌크 연산'을 할 때에는, 반드시 em.flush를 해줘야 한다!!
+            //이런 '벌크 연산' 이후에는 반드시 강제로 em.flush, em.clear()를 작성해줘야 함.
+            //em.flush(); //flush를 해줌으로써, 혹시라도 변경 쿼리 날렸는데 db에 적용되지 않는 부분이 있는 경우, 확실히 다시 db에
+                        //쿼리 날려주는 것임.
+            //em.clear(); //이후, 영속성 컨텍스트에 혹시라도 남아 있는 데이터를 다 없애버림.
+                        //이후 다른 곳에서 다른 쿼리 다른 작업을 문제 없이 할 수 있도록 해주는 것임.
+            //(단, '레펏 MemberRepository의 메소드 bulkAgePlus'의 위에 '어노테이션 @Modifying(clearAutomatically = true)'를
+            // 작성해줌으로써, 여기서 'em.clear()' 작성을 생략해줘도 됨.)
+            //- @Modifying: '순수 스프링 JPA에서의 내장 메소드 em.createQuery 의 내장 메소드 executeUpdate()'를
+            //              '스프링 데이터 JPA'에서는 이 어노테이션을 통해 대신해줌.
+            //- 'clearAutomatically = true': 벌크 수정 Update 연산'을 호출하는 외부 클래스에서 반드시 작성해줘야 하는
+            //                               em.flush(), em.clear() 중에서 'em.clear()'를 여기서 저렇게 사용하여 대체할 수 있음.
+
+
+
+
+
+
+            Assertions.assertThat(resultCount).isEqualTo(3);
+
+        }
 
         //=========================================================================================================
 
 
+        //[ '@EntityGraph'강  00:00 ] 실전! 스프링 데이터 JPA. pdf p42
+
+
+        @Test
+        public void findMemberLazy(){
+
+        //given
+        //member1은 teamA를 참조하고, member2는 teamB를 참조한다.
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+
+        teamRepository.save(teamA); //'레펏 TeamRepository는 extends JpaRepository<'Team', Long> 에서
+                                    //'Team 엔티티'를 기본으로 하고 있기 때문에, '내장 메소드 save()'가 teamA 를 받기 가능함.
+        teamRepository.save(teamB);
+
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush(); //위에 '내장 메소드 save'로 작성한 것들이 먼저는 영속성 컨텍스트에 보관되어 있다가,
+                    //em.flush()를 작성하면 이제 db에 다 쿼리로 날려버림.
+        em.clear(); //그런 후, 영속성 컨텍스트에 혹시 모르게 남아 있는 것들을 다음 영속성 컨텍스트 작업을 위해 다 비워줌.
+
+
+        //------------------------------------------------------------------------------------------------
+
+
+        //when
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+
+            System.out.println(member.getUsername());
+                
+        }
+
+
+
+        }
+
+
+
+        //=========================================================================================================
+
+
+
+
+
+
+
     }
-}
 

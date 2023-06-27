@@ -42,9 +42,10 @@ public class Member {
     //'@ManyToOne', 'OneToOne'은 '기본설정이 즉시로딩 EAGER'이므로, 여기서 반드시 '지연로딩 LAZY'로 설정 바꿔줘야 한다!
     //*****중요*****
     //- JPA에서의 모든 연관관계는 기본적으로 다 지연로딩 LAZY로 해야 한다!
-    //- '외부 클래스 어딘가에서' '여기의 Member 객체를 조회'할 때, 'Member 객체의 내부의 필드(속성)인 Team team 객체는 조회하지 않고,
-    //  일단 가짜 객체로 '지연하여' 가지고 있다가, '이후' 'Team team 객체의 값이 실제 필요할 때(사용할 때) Member 객체 내부의 필드(속성)인
-    //  Team team 객체'를 db로부터 가져오는 것임.
+    //- '외부 클래스 어딘가에서' '여기의 Member 객체를 조회'할 때,
+    // 'Member 객체의 내부의 필드(속성)인 Team team 객체는 조회하지 않고,
+    //  Team 객체를 일단 가짜 객체로 '지연하여' 가지고 있다가, '이후' 'Team team 객체의 값이 실제 필요할 때(사용할 때)
+    //  Member 객체 내부의 필드(속성)인 Team team 객체'를 db로부터 가져오는 것임.
     @JoinColumn(name = "TEAM_ID") //'주인이 아닌 테이블 TEAM의 PK 컬럼인 TEAM_ID'
                                   //= '주인인 테이블 MEMBER의 FK 컬럼인 TEAM_ID'
     private Team team; //'현재의 회원이 가지고 있는(소속되어 있는) 팀에 대한 정보'

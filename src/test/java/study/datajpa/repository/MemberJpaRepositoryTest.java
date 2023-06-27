@@ -220,6 +220,28 @@ class MemberJpaRepositoryTest {
     //=========================================================================================================
 
 
+    //[ '벌크성 수정 쿼리'강  03:00 ] 실전! 스프링 데이터 JPA. pdf p41
+
+    @Test
+    public void bulkUpdate(){
+
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 19));
+        memberJpaRepository.save(new Member("member3", 20));
+        memberJpaRepository.save(new Member("member4", 21));
+        memberJpaRepository.save(new Member("member5", 40));
+
+
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+
+        Assertions.assertThat(resultCount).isEqualTo(3);
+
+    }
+
+
+
+
 
     //=========================================================================================================
 
