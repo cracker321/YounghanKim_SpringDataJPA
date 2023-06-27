@@ -22,17 +22,22 @@ import java.util.List;
 //[ '사용자 정의 리포지토리 구현'강  03:00 ] 실전! 스프링 데이터 JPA. pdf p47
 
 
-//- 1.'레퍼지터리(인터페이스) MemberRepository'가 '다중상속' 하고 있는 인터페이스 2개 중에 하나가
+//- 순서
+//  1.'레퍼지터리(인터페이스) MemberRepository'가 '다중상속' 하고 있는 인터페이스 2개 중에 하나가
 //  바로 이 '사용자 정의 인터페이스 MemberRepositoryCustom'이고,
 //  (하나는 '스프링 데이터 JPA의 내장 인터페이스 JpaRepository'이고,
 //   하나는 '사용자 정의 레퍼지터리를 만들기 위해 생성한 사용자 정의 인터페이스 MemberRepositoryCustom'임)
-//  2.그 '사용자 정의 인터페이스 MemberRepositoryCustom' 내부의 추상 메소드들의 구현부들을 작성해주기 위해 존재하는
-//  3.'구체화하는 클래스 MemberRepositoryCustom'의 내부에 '구체화 메소드 findMemberCustom'이 존재함.
+//  2.그 '사용자 정의 인터페이스 MemberRepositoryCustom' 내부의 추상 메소드들의 구현부들을 작성해주기 위해
+//  '클래스 MemberRepositoryCustom'을 작성해줌.
+//  3.'구체화하는 클래스 MemberRepositoryCustom'의 내부에 '구체화 메소드 findMemberCustom'을 작성해줌.
 
 //- 이를 통해,
-//  1.외부 클래스 어딘가에서 '레퍼지터리(인터페이스) MemberRepsotory를 참조하여
-//  2.'MemberRepositoryImpl의 내부 메소드 findMemberCustom을 호출('memberRepository.findMemberCustom' 이렇게 작성)
-//  할 수 있게 된다!
+//  1.외부 클래스 어딘가(여기서는 '클래스 MemberRepsoitoryTest')에서 '레퍼지터리(인터페이스) MemberRepsotory'를 참조하여
+//  2.'MemberRepositoryImpl의 내부 메소드 findMemberCustom을
+//  호출('memberRepository.findMemberCustom' 이렇게 작성)할 수 있게 된다!
+
+//- 주로 복잡한 쿼리르 사용할 때 활용하는 'Query DSL'을 사용할 때, 이 '사용저 정의 인터페이스 ~~Custom'을 실무에서 자주 사용함.
+
 
 //--------------------------------------------------------------------------------------------------
 
