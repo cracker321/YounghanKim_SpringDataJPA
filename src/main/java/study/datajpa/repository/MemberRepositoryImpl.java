@@ -7,10 +7,28 @@ import study.datajpa.entity.Member;
 import java.util.List;
 
 
+/*
+< 추상 클래스 >
+- 하나 이상의 추상 메소드를 가지고 있는 클래스.
+  일반 메소드와 추상 메소드가 섞여 있어도 되고,
+  추상 메소드끼리만 구성되어 됨.
+
+
+< 인터페이스 >
+- 추상 메소드들로만 구성되어 있는 클래스.
+- final을 붙일 수 없고, 인터페이스 내부의 변수들은 static이어야만 한다. 즉, 인터페이스는 일반변수들을 가질 수 없음.
+ */
+
+
 //--------------------------------------------------------------------------------------------------
 
 
 //[ '사용자 정의 리포지토리 구현'강  03:00 ] 실전! 스프링 데이터 JPA. pdf p47
+
+
+//- 실무를 하다보면, '내장 JpaRepository의 내장 레펏 메소드'만으로는 원하는 기능을 구현하지 못하는 경우,
+//  이를 해결하기 위해 복잡한 쿼리나 동적 쿼리를 짜야 할 때가 생기는데, 그 때 Query DSL을 활용하여,
+//  이와 같은 Custom 방법을 사용함.
 
 
 //- 순서
@@ -38,6 +56,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final EntityManager em;
 
     //# '의존성 주입받는 객체의 생성자'를 통한 '객체(여기서는 'EntityManager 객체') 의존성 주입 DI'
+
     //- private final을 통해 의존성을 주입받으면, 아래처럼 '주입받는 현재 클래스의 생성자의 매개변수로',
     //  '주입하는 객체의 생성자를 그 매개변수로 넣고', '그 주입하는 객체를 생성함으로 의존성을 주입'함.
     //- 'MemberRepsoitoryImpl 객체'가 서버 실행하는 과정에서 생성될 때, 이 객체가 필요로 하는 의존성을 외부에서 주입받는 방식임.
@@ -45,6 +64,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     //- 생성자를 통한 의존성 주입은, 변경이 불가능한 불변성(Immutablility)을 가진 객체를 생성하는 데 도움을 줌.
     //- '필드주입('@Autowried')'보다 더 안정적임.
     //- 아래 생성자를 작성하는 것은 귀찮으니, 그 대신 현재 클래스 MemberRespositoryImpl 위에 '@RequiredConstructor'를 작성하면 된다.
+
+    //- '필드 주입'을 통한 의존성 주입
+    //  e.g) @Autowired
+    //       EntityManager em;
+    //- '생성자 주입'을 통한 의존성 주입
+    //  e.g) private final EntityManager em;
+    //       작성 후, 해당 클래스 위에 @RequiredArgsConstructor 작성하기.
 
 //    public MemberRepositoryImpl(EntityManager em) {
 //        this.em = em;
