@@ -80,7 +80,8 @@ public class MemberJpaRepository {
                                             //  당연히 그 회원 Member 객체를 반환해주고,
                                             //  외부에서 인자로 들어온 id값에 해당하는 회원 Member가 없으면,
                                             //  Optional.empty() 즉, Optional 빈 객체를 반환한다.
-                                            //  Optional 빈 객체를 반환하는 경우, 반드시 null을 처리해주는 
+                                            //  Optional 빈 객체를 반환하는 경우, 이 MemberJpaRepository를 호출한 외부의 Serivce 클래스에서
+                                            //  이 MemberJpaRepository를 호출한 부분 아래에 반드시 null을 처리해주는 orElseThrow를 작성해줘야 한다!
 
         //- 'Optional<Member>': DB에 그 해당 회원의 id가 존재할 수도 있고, 없을 수도 있기 때문에,
         //                      '내장 JpaRepository의 내장 메소드 findById()의 반환값은 Optional<>로 설정되어 있음'.
