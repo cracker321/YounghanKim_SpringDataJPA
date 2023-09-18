@@ -74,8 +74,13 @@ public class MemberJpaRepository {
 
         Member member = em.find(Member.class, id);
 
-        return Optional.ofNullable(member); //- DB에 해당 회원 id값을 갖는 회원이 있을 수도 있고, 없을 수도 있다는 뜻
+        return Optional.ofNullable(member); //- DB에 외부에서 인자로 들어온 id값에 해당하는 회원 Member이있을 수도 있고, 없을 수도 있다는 뜻
                                             //- Optional 타입으로 감싸는 것임.
+                                            //- 만약, 외부에서 인자로 들어온 id값에 해당하는 회원 Member가 있으면, 
+                                            //  당연히 그 회원 Member 객체를 반환해주고,
+                                            //  외부에서 인자로 들어온 id값에 해당하는 회원 Member가 없으면,
+                                            //  Optional.empty() 즉, Optional 빈 객체를 반환한다.
+                                            //  Optional 빈 객체를 반환하는 경우, 반드시 null을 처리해주는 
 
         //- 'Optional<Member>': DB에 그 해당 회원의 id가 존재할 수도 있고, 없을 수도 있기 때문에,
         //                      '내장 JpaRepository의 내장 메소드 findById()의 반환값은 Optional<>로 설정되어 있음'.
